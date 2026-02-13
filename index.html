@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCHUFA-Score Simulator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .dropdown { margin: 10px 0; }
+        label { display: block; font-weight: bold; }
+        select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        #result { font-size: 24px; font-weight: bold; margin-top: 30px; padding: 20px; border: 2px solid #007bff; border-radius: 10px; background: #f8f9fa; text-align: center; }
+        h1 { color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Neuer SCHUFA-Score Simulator 2026</h1>
+    <p>Wähle in jedem der 12 Dropdowns deine Situation aus. Der Score (1–999) wird automatisch berechnet und angezeigt. Die Punktebewertungen stammen aus der im Dezember veröffentlichteten <a href="https://www.reddit.com/r/Finanzen/comments/1poupds/neuer_schufascore_0999_kein_prozentsatz/">Beta</a> <strong></strong></p>
+
+    <div id="form">
+        <!-- Dropdowns werden per JS generiert -->
+    </div>
+
+    <div id="result">Geschätzter SCHUFA-Score: 0</div>
+    <div id="Erklärung">vorraussichtliche Scoregrenzen: <br>0-99P Ungenügend, 100-600 Ausreichend, 601-708 Akzeptabel, 709-800 Gut, >800 Hervorragend</div>
+
+
+    <script>
+        // HIER DEINE 12 DROPDOWNS MIT PUNKTWERTEN DEFINIEREN
+        // Format: label = Feldname, options = [{text: "Anzeigetext", value: DEIN_PUNKTWERT}]
+        const dropdowns = [
+            {
+                label: "1. Zahlungsausfälle letzte 3 Jahre",
+                options: [
+                    {text: "Keine +264P", value: 264},
+                    {text: "Zahlungsausfall aktiv +0P", value: 0},
+                    {text: "Erledigt +100P", value: 100},
+                    {text: "seit 1 Jahr erledigt +135P", value: 135},
+                    {text: "seit 2 Jahren erledigt +152P", value: 152}
+                ]
+            },
+            {
+                label: "2. Anfragen aus Handel, Telekommunikation und (Finanz) Dienstleistungen in den vergangenen 12 Monaten",
+                options: [
+                    {text: "keine oder eine Anfrage +99P", value: 99},
+                    {text: "2 Anfragen +71P", value: 71},
+                    {text: "3 Anfragen +40P", value: 40},
+                    {text: "mehr als 3 Anfragen +0P", value: 0}
+                ]
+            },
+            {
+                label: "3. Anfragen zu Girokonten und Kreditkarten in den vergangenen 12 Monaten (Anfragen/Abschlüsse innerhalb von 28 Tagen zählen als eine)",
+                options: [
+                    {text: "keine Anfrage/Abschluss +117P", value: 117},
+                    {text: "1 Anfrage/Abschlüsse +82P", value: 82},
+                    {text: "2 Anfragen/Abschlüsse +44P", value: 44},
+                    {text: "mehr als 2 Anfragen/Abschlüsse +0P", value: 0}
+                ]
+            },
+            {
+                label: "4. Aufgenommene Ratenkredite in den vergangenen 12 Monaten",
+                options: [
+                    {text: "kein Kredit +66P", value: 66},
+                    {text: "1 Kredit +48P", value: 48},
+                    {text: "2 Kredite +32P", value: 32},
+                    {text: "mehr als 2 Kredite +0P", value: 0}
+                ]
+            },
+            {
+                label: "5. Laufzeit ältester Ratenkredit (in Jahren)",
+                options: [
+                    {text: "Keiner/bis 3 Jahre +61P", value: 61},
+                    {text: "ab 3 Jahre +48P", value: 48},
+                    {text: "ab 4 Jahre +28P", value: 28},
+                    {text: "ab 5 Jahre +10P", value: 10},
+                    {text: "ab 6 Jahre +0P", value: 0}
+                ]
+            },
+            {
+                label: "6. Alter der aktuelle Wohnadresse",
+                options: [
+                    {text: "bis zu 7 Monate +0P", value: 0},
+                    {text: "ab 7 Monate +6P", value: 6},
+                    {text: "ab 1 Jahr +17P", value: 17},
+                    {text: "ab 2 Jahren +28P", value: 28},
+                    {text: "ab 3 Jahren +35P", value: 35},
+                    {text: "ab 4 Jahren +40P", value: 40},
+                    {text: "ab 5 Jahren +42P", value: 42},
+                    {text: "ab 6 Jahren +49P", value: 49},
+                    {text: "ab 7 Jahren +49P", value: 49},
+                    {text: "ab 8 Jahren +54P", value: 54},
+                    {text: "ab 9 Jahren +58P", value: 58},
+                    {text: "ab 10 Jahren +63P", value: 63},
+                    {text: "ab 15 Jahren +75P", value: 75},
+                    {text: "ab 20 Jahren +94P", value: 94}
+                ]
+            },
+            {
+                label: "7. Vorliegen einer Identitätsprüfung",
+                options: [
+                    {text: "nicht überprüft +0P", value: 0},
+                    {text: "überprüft +38P", value: 38}
+                ]
+            },
+            {
+                label: "8. Alter des jüngsten Rahmenkredits (in Jahren)",
+                options: [
+                    {text: "Kein Rahmenkredit +36P", value: 36},
+                    {text: "bis zu 1 Jahr +0P", value: 0},
+                    {text: "ab 1 Jahr +16P", value: 16},
+                    {text: "ab 2 Jahre +36P", value: 36}
+                ]
+            },
+            {
+                 label: "9. Alter des ältesten Bankvertrags",
+                options: [
+                    {text: "kein Bankvertrag +18P", value: 18},
+                    {text: "bis zu 3 Monate +0P", value: 0},
+                    {text: "ab 3 Monate +3P", value: 3},
+                    {text: "ab 6 Monate +6P", value: 6},
+                    {text: "ab 1 Jahr +12P", value: 12},
+                    {text: "ab 2 Jahren +17P", value: 17},
+                    {text: "ab 3 Jahren +23P", value: 23},
+                    {text: "ab 4 Jahren +27P", value: 27},
+                    {text: "ab 5 Jahren +37P", value: 37},
+                    {text: "ab 10 Jahren +49P", value: 49},
+                    {text: "ab 15 Jahren +56P", value: 56},
+                    {text: "ab 20 Jahren +69P", value: 69}
+                ]
+            },
+            {
+                label: "10. Kreditstatus",
+                options: [
+                    {text: "offener Ratenkredit +0P", value: 0},
+                    {text: "kein Ratenkredit +9P", value: 9},
+                    {text: "positiv erledigter Ratenkredit +19P", value: 19},
+                 ]
+            },
+            {
+                label: "11. Alter der ältestsen Kreditkarte",
+                options: [
+                    {text: "keine Kreditkarte +24P", value: 24},
+                    {text: "bis zu 6 Monate +0P", value: 0},
+                    {text: "ab 6 Monate +14P", value: 14},
+                    {text: "ab 1 Jahr +23P", value: 23},
+                    {text: "ab 2 Jahren +32P", value: 32},
+                    {text: "ab 3 Jahren +41P", value: 41},
+                    {text: "ab 4 Jahren +52P", value: 52},
+                    {text: "ab 5 Jahren +59P", value: 59},
+                    {text: "ab 10 Jahren +74P", value: 74},
+                    {text: "ab 15 Jahren +81P", value: 81}
+                ]
+            },
+            {
+                label: "12. Immobilienkredit/Bürgschaft",
+                options: [
+                    {text: "Nicht vorhanden +0P", value: 0},
+                    {text: "vorhanden +55P", value: 55}
+                ]
+            }
+        ];
+
+        // Form dynamisch generieren
+        const form = document.getElementById("form");
+        dropdowns.forEach((dd, index) => {
+            const div = document.createElement("div");
+            div.className = "dropdown";
+            div.innerHTML = `
+                <label>${dd.label}</label>
+                <select id="dd${index}">
+                    ${dd.options.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join("")}
+                </select>
+            `;
+            form.appendChild(div);
+        });
+
+        // Score berechnen (Summe aller Punkte, skaliert auf 1–999)
+        function calculateScore() {
+            let total = 0;
+            for (let i = 0; i < dropdowns.length; i++) {
+                const select = document.getElementById(`dd${i}`);
+                total += parseInt(select.value) || 0;
+            }
+            // Beispiel-Skalierung: Passe den Faktor an deine Min/Max-Punkte an (z.B. bei -600 bis +600)
+            const score = Math.max(1, Math.min(999, Math.round(total)));
+            document.getElementById("result").textContent = `SCHUFA-Score: ${score} von 999`;
+            document.getElementById("result").style.color = score > 800 ? "darkgreen" : score > 709 ? "green" : score > 609 ? "lightgreen" : score > 100 ? "orange" :"red";
+        }
+
+        // Bei jeder Änderung neu berechnen
+        document.addEventListener("change", calculateScore);
+        calculateScore(); // Initial anzeigen
+    </script>
+</body>
+</html>
