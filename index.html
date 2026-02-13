@@ -65,8 +65,7 @@
     </div>
 
     <div id="result">Geschätzter SCHUFA-Score: 0</div>
-    <div id="Erklärung">Vorraussichtliche Scoregrenzen: <br>0-99P Ungenügend, 100-600 Ausreichend, 601-708 Akzeptabel, 709-800 Gut, >800 Hervorragend</div>
-
+    <div id="Erklärung">Vorraussichtliche Scoregrenzen: <br>0-99P Ungenügend, 100-641 Ausreichend, 642-708 Akzeptabel, 709-775 Gut, >775 Hervorragend</div>
     <script>
         // HIER DEINE 12 DROPDOWNS MIT PUNKTWERTEN UND ERKLÄRUNGEN DEFINIEREN
         const dropdowns = [
@@ -244,9 +243,9 @@
             }
             const score = Math.max(1, Math.min(999, Math.round(total)));
             document.getElementById("result").textContent = `SCHUFA-Score: ${score} von 999`;
-            document.getElementById("result").style.color = score > 799 ? "darkgreen" :
+            document.getElementById("result").style.color = score > 775 ? "darkgreen" :
                                                            score > 708 ? "green" :
-                                                           score > 599 ? "lightgreen" :
+                                                           score > 641 ? "lightgreen" :
                                                            score > 99 ? "orange" : "red";
         }
 
