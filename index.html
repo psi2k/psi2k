@@ -184,7 +184,7 @@
             // Beispiel-Skalierung: Passe den Faktor an deine Min/Max-Punkte an (z.B. bei -600 bis +600)
             const score = Math.max(1, Math.min(999, Math.round(total)));
             document.getElementById("result").textContent = `SCHUFA-Score: ${score} von 999`;
-            document.getElementById("result").style.color = score > 800 ? "darkgreen" : score > 709 ? "green" : score > 609 ? "lightgreen" : score > 100 ? "orange" :"red";
+            document.getElementById("result").style.color = score > 799 ? "darkgreen" : score > 708 ? "green" : score > 599 ? "lightgreen" : score > 99 ? "orange" :"red";
         }
 
         // Bei jeder Änderung neu berechnen
