@@ -6,31 +6,73 @@
     <title>SCHUFA-Score Simulator</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .dropdown { margin: 10px 0; }
+        .dropdown { margin: 10px 0; position: relative; }
         label { display: block; font-weight: bold; }
-        select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .label-container { display: flex; align-items: center; position: relative; }
+        .info-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        .info-icon {
+            font-size: 16px;
+            color: #007bff;
+            cursor: help;
+            display: block;
+            transition: transform 0.2s;
+            padding: 2px;
+        }
+        .info-icon:hover { transform: scale(1.2); }
+        .tooltip {
+            position: absolute;
+            top: 100%; left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            max-width: 400px;
+            width: max-content;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            line-height: 1.4;
+            white-space: normal;
+        }
+        .tooltip::before {
+            content: attr(data-tooltip);
+        }
+        .info-container:hover .tooltip {
+            display: block;
+        }
+        .info-container:hover .info-icon {
+            background: rgba(0,123,255,0.1);
+            border-radius: 4px;
+        }
+        select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; }
         #result { font-size: 24px; font-weight: bold; margin-top: 30px; padding: 20px; border: 2px solid #007bff; border-radius: 10px; background: #f8f9fa; text-align: center; }
         h1 { color: #007bff; }
+        #Erklärung { margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; font-size: 14px; }
     </style>
 </head>
 <body>
     <h1>Neuer SCHUFA-Score Simulator 2026</h1>
-    <p>Wähle in jedem der 12 Dropdowns deine Situation aus. Der Score (1–999) wird automatisch berechnet und angezeigt. Die Punktebewertungen stammen aus der im Dezember veröffentlichteten <a href="https://www.reddit.com/r/Finanzen/comments/1poupds/neuer_schufascore_0999_kein_prozentsatz/">Beta</a> <strong></strong></p>
+    <p>Wähle in jedem der 12 Dropdowns deine Situation aus. Der Score (1–999) wird automatisch berechnet und angezeigt. Die Punktebewertungen stammen aus der im Dezember veröffentlichten <a href="https://www.reddit.com/r/Finanzen/comments/1poupds/neuer_schufascore_0999_kein_prozentsatz/">Beta</a>.</p>
 
     <div id="form">
         <!-- Dropdowns werden per JS generiert -->
     </div>
 
     <div id="result">Geschätzter SCHUFA-Score: 0</div>
-    <div id="Erklärung">vorraussichtliche Scoregrenzen: <br>0-99P Ungenügend, 100-600 Ausreichend, 601-708 Akzeptabel, 709-800 Gut, >800 Hervorragend</div>
-
+    <div id="Erklärung">Vorraussichtliche Scoregrenzen: <br>0-99P Ungenügend, 100-600 Ausreichend, 601-708 Akzeptabel, 709-800 Gut, >800 Hervorragend</div>
 
     <script>
-        // HIER DEINE 12 DROPDOWNS MIT PUNKTWERTEN DEFINIEREN
-        // Format: label = Feldname, options = [{text: "Anzeigetext", value: DEIN_PUNKTWERT}]
+        // HIER DEINE 12 DROPDOWNS MIT PUNKTWERTEN UND ERKLÄRUNGEN DEFINIEREN
         const dropdowns = [
             {
                 label: "1. Zahlungsausfälle letzte 3 Jahre",
+                tooltip: "Zahlungstörungen sind wichtiger Einflussfaktor für SCHUFA-Score. Die Umgangsmoral stellt sicher, dass Zahlungsschwache Rechnungen oder Verträge, bei denen der Schuldner trotz mehrfacher Mahnung nicht bezahlt, bei der SCHUFA vermerkt werden. Die betroffenen Mahnungen nicht gezahlt und wenn ein Mahngebot vorliegt, müssen diese Fälle mindestens vier Wochen zur Verfügung der SCHUFA sein. SCHUFA prüft, ob Zahlungstörungen, erledigte Zahlungstörungen – das heißt inzwischen beglichene Forderungen – oder offene Zahlungstörungen – der Betrag noch nicht bezahlt wurde – vorliegen.",
                 options: [
                     {text: "Keine +264P", value: 264},
                     {text: "bestehender Zahlungsausfall +0P", value: 0},
@@ -41,6 +83,7 @@
             },
             {
                 label: "2. Anfragen aus Handel, Telekommunikation und (Finanz) Dienstleistungen in den vergangenen 12 Monaten",
+                tooltip: "Hierzu zählen Anfragen aus den Branchen (Online)-Handel, Telekommunikation und (Finanz)Dienstleistungen. Es persönlich aus Rechnung eingekaufte Online-Versandhändler, Handyabos oder Versicherungen die Bonität bei der SCHUFA anfragen. Ob eine Anfrage z.B. erlos ist von verschieden Fakten abhängig. Diese Bonitätsanfragen fließen in das Scoring ein. Werden Bonitätsanfragen zu einer Person bei der SCHUFA getätigt, kommt es statistisch gesehen häufiger zu Zahlungsausfällen. Das verschlechtert den Score. Wichtig zu wissen: Mehrere Anfragen innerhalb von 28 Tagen werden nur einmal gezählt..",
                 options: [
                     {text: "keine oder eine Anfrage +99P", value: 99},
                     {text: "2 Anfragen +71P", value: 71},
@@ -50,6 +93,7 @@
             },
             {
                 label: "3. Anfragen zu Girokonten und Kreditkarten in den vergangenen 12 Monaten (Anfragen/Abschlüsse innerhalb von 28 Tagen zählen als Eine)",
+                tooltip: "Wenn Person ein neues Kreditkarte oder ein neues Girokonto bei einer Bank beantragt, kann diese neue Informationen zur Bonität bei der SCHUFA anfragen. Diese Bonitätsanfragen und auch der mögliche Vertragsabschluss fließen in das Scoring ein. <br> Zum Beispiel: Werden viele neue Kreditkarten oder Girokonten in den vergangenen zwölf Monaten beantragt und abgeschlossen, kommt es statistisch gesehen häufiger zu Zahlungsstörungen. Das verschlechtert den Score. <br> Wichtig zu wissen: Mehrere Anfragen und Abschlüsse innerhalb von 28 Tagen werden nur einmal gezählt. Der Abschluss von Girokonto- oder Kreditkartenkonditionen zählt nicht wie ein neues Girokonto mit.",
                 options: [
                     {text: "keine Anfrage/Abschluss +117P", value: 117},
                     {text: "1 Anfrage/Abschluss +82P", value: 82},
@@ -59,6 +103,7 @@
             },
             {
                 label: "4. Aufgenommene Ratenkredite in den vergangenen 12 Monaten",
+                tooltip: "Neue Ratenkredite (Konsumentenkredite). Viele neue Kredite erhöhen Ausfallrisiko-Einschätzung.",
                 options: [
                     {text: "kein Kredit +66P", value: 66},
                     {text: "1 Kredit +48P", value: 48},
@@ -68,6 +113,7 @@
             },
             {
                 label: "5. Laufzeit ältester Ratenkredit (in Jahren)",
+                tooltip: "Zu Ratenkrediten zählen unter anderem Konsumkredite (z. B. für Möbel, Auto oder Elektronik), die in mehreren monatlichen Raten zurückzuzahlen sind. Sie stellen eine zuletztliche finanzielle Belastung dar. Das heißt, dass danach weniger Spielraum für weitere Ausgaben besteht. Je länger läuft ein Ratenkredit, desto abhängiger wird man von Zahlungsschwierigkeiten zu kommen. Deshalb hat eine längere Restlaufzeit einen negativen Einfluss auf den Score. Je kürzer die Restlaufzeit, desto positiver für den Score. Wichtig zu wissen: Restlaufzeiten von bis zu drei Jahren haben keinen negativen Einfluss auf den Score.",
                 options: [
                     {text: "Keiner/bis 3 Jahre +61P", value: 61},
                     {text: "ab 3 Jahre +48P", value: 48},
@@ -78,6 +124,7 @@
             },
             {
                 label: "6. Alter der aktuelle Wohnadresse",
+                tooltip: "Stabilität der Meldeadresse. Häufige Umzüge korrelieren mit höherem Ausfallrisiko.",
                 options: [
                     {text: "bis zu 7 Monate +0P", value: 0},
                     {text: "ab 7 Monate +6P", value: 6},
@@ -97,6 +144,7 @@
             },
             {
                 label: "7. Vorliegen einer Identitätsprüfung (bei der Schufa angemeldet)",
+                tooltip: "Wenn die SCHUFA weiß, dass bei einer Person z. B. aufgrund eines bestimmten Vertragsabschlusses die Identität überprüft wurde, ist das eine wichtige Information für Bonität und Score. Die Überprüfung der Bonität erfolgt zum Beispiel bei Banken durch den Personalausweis, da das beim Abschluss eines Bankvertrags gesetzlich vorgeschrieben ist. Aufgrund eines bestimmten Vertragsabschlusses auf Identität überprüft wurde, ist das eine wichtige Information für die Bonität und gut für den Score bei Banken durch den Personalausweis, da das beim Abschluss eines Bankvertrags gesetzlich vorgeschrieben ist.",
                 options: [
                     {text: "nicht überprüft +0P", value: 0},
                     {text: "überprüft +38P", value: 38}
@@ -104,6 +152,7 @@
             },
             {
                 label: "8. Alter des jüngsten Rahmenkredits (in Jahren)",
+                tooltip: "Ein Rahmenkredit ist ein flexibler Kredit, bei dem man bis zu einer festgelegten Summe jederzeit Geld abrufen und zurückzahlen kann – ähnlich wie ein Dispo-Kredit. Er funktioniert ähnlich wie ein Dispo-Kredit, bietet aber oft bessere Konditionen und höhere Beträge.<br> Ein Rahmenkredit ist grundsätzlich flexibel einsetzbar und nutzbar, was bei unerwarteten Spielen Raum belustet, sehr gut aus. Das birgt Risiken, die Zahlungsfähigkeit beeinflussen können. Aus diesem Grund verschlechtert ein Rahmenkredit zwar nicht den Score, im Laufe der Zeit, man laufe der hat, dass man sich finanziell Verpflichtungen nachkommt. <br> Wichtig zu wissen: Bei vielen Banken nachzudenken, dass dadurch, dass der Rahmenkredit wieder wie ein neuer Kredit bewertet wird. Die SCHUFA arbeitet an einer technischen Lösung für dieses Thema.",
                 options: [
                     {text: "Kein Rahmenkredit +36P", value: 36},
                     {text: "bis zu 1 Jahr +0P", value: 0},
@@ -112,7 +161,8 @@
                 ]
             },
             {
-                 label: "9. Alter des ältesten Bankvertrags",
+                label: "9. Alter des ältesten Bankvertrags",
+                tooltip: "Ältester Girokonto-/Sparkonto-Vertrag. Lange Bankbeziehung zeigt finanzielle Stabilität.",
                 options: [
                     {text: "kein Bankvertrag +18P", value: 18},
                     {text: "bis zu 3 Monate +0P", value: 0},
@@ -130,14 +180,16 @@
             },
             {
                 label: "10. Kreditstatus",
+                tooltip: "Status laufender Ratenkredite. Offene Kredite erhöhen Belastungsrisiko, pünktlich erledigte sind positiv.",
                 options: [
                     {text: "kein Ratenkredit +9P", value: 9},
                     {text: "offener Ratenkredit +0P", value: 0},
                     {text: "positiv erledigter Ratenkredit +19P", value: 19}
-                 ]
+                ]
             },
             {
-                label: "11. Alter der ältestsen Kreditkarte",
+                label: "11. Alter der ältesten Kreditkarte",
+                tooltip: "Älteste Kreditkarten-Vertrag. Lange Nutzung ohne Probleme zeigt verantwortungsvolle Kreditnutzung.",
                 options: [
                     {text: "keine Kreditkarte +24P", value: 24},
                     {text: "bis zu 6 Monate +0P", value: 0},
@@ -153,6 +205,7 @@
             },
             {
                 label: "12. Immobilienkredit/Bürgschaft",
+                tooltip: "Hypothek, Baufinanzierung oder Bürgschaft. Vorhandensein zeigt hohe finanzielle Verantwortungsfähigkeit.",
                 options: [
                     {text: "Nicht vorhanden +0P", value: 0},
                     {text: "vorhanden +55P", value: 55}
@@ -166,7 +219,15 @@
             const div = document.createElement("div");
             div.className = "dropdown";
             div.innerHTML = `
-                <label>${dd.label}</label>
+                <label>
+                    <div class="label-container">
+                        ${dd.label}
+                        <span class="info-container">
+                            <span class="info-icon" data.tooltip="${dd.tooltip}">ℹ️</span>
+                            <div class="tooltip">${dd.tooltip}</div>
+                        </span>
+                    </div>
+                </label>
                 <select id="dd${index}">
                     ${dd.options.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join("")}
                 </select>
@@ -181,10 +242,12 @@
                 const select = document.getElementById(`dd${i}`);
                 total += parseInt(select.value) || 0;
             }
-            // Beispiel-Skalierung: Passe den Faktor an deine Min/Max-Punkte an (z.B. bei -600 bis +600)
             const score = Math.max(1, Math.min(999, Math.round(total)));
             document.getElementById("result").textContent = `SCHUFA-Score: ${score} von 999`;
-            document.getElementById("result").style.color = score > 799 ? "darkgreen" : score > 708 ? "green" : score > 599 ? "lightgreen" : score > 99 ? "orange" :"red";
+            document.getElementById("result").style.color = score > 799 ? "darkgreen" :
+                                                           score > 708 ? "green" :
+                                                           score > 599 ? "lightgreen" :
+                                                           score > 99 ? "orange" : "red";
         }
 
         // Bei jeder Änderung neu berechnen
